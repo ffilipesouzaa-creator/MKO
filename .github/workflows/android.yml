@@ -1,4 +1,4 @@
-name: Gerar APK
+name: Gerar e Publicar APK
 
 on:
   push:
@@ -17,16 +17,19 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: gradle
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew || true
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
 
     - name: Build APK
-      run: ./gradlew assembleRelease || gradle assembleRelease
+      run: gradle assembleRelease
 
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
+    - name: Criar Release e Enviar APK
+      uses: softprops/action-gh-release@v2
       with:
-        name: MundoKidsOutlet-APK
-        path: app/build/outputs/apk/release/*.apk
+        tag_name: v1.0.${{ github.run_number }}
+        name: Mundo Kids Outlet v1.0.${{ github.run_number }}
+        files: app/build/outputs/apk/release/*.apk
+        body: "Versão automática gerada pelo GitHub Actions."
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
